@@ -27,7 +27,7 @@ exports.init = function() {
         show_fps: DEBUG,
         console_verbose: DEBUG,
         autoresize: true,
-        quality: "P_ULTRA"
+        quality: m_cfg.P_ULTRA
     });
 }
 
@@ -81,7 +81,7 @@ function load_cb(data_id, success) {
 
     // place your code here
     
-    lights.set_day_time(18.5);
+    lights.set_day_time(18.2);
 
 }
 
