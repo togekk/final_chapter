@@ -4,19 +4,27 @@
 b4w.register("final_chapter_main", function(exports, require) {
 
 // import modules used by the app
-var m_app       = require("app");
-var m_cfg       = require("config");
-var m_data      = require("data");
-var m_preloader = require("preloader");
-var m_ver       = require("version");
-var lights      = require("lights");
+const m_app       = require("app");
+const m_cfg       = require("config");
+const m_data      = require("data");
+const m_preloader = require("preloader");
+const m_ver       = require("version");
+const lights      = require("lights");
+const m_mouse     = require("mouse");
+const m_cam       = require("camera");
+const m_scenes    = require("scenes");
+//const m_input     = require("input");
 
 // detect application mode
-var DEBUG = (m_ver.type() == "DEBUG");
+const DEBUG = (m_ver.type() == "DEBUG");
 
 // automatically detect assets path
-var APP_ASSETS_PATH = m_cfg.get_assets_path("final_chapter");
-
+const APP_ASSETS_PATH = m_cfg.get_assets_path("final_chapter");
+    
+let canvas_e;
+let x_old;
+let y_old;
+    
 /**
  * export the method to initialize the app (called at the bottom of this file)
  */
@@ -42,13 +50,15 @@ function init_cb(canvas_elem, success) {
     }
 
     m_preloader.create_preloader();
-
+    
     // ignore right-click on the canvas element
     canvas_elem.oncontextmenu = function(e) {
         e.preventDefault();
         e.stopPropagation();
         return false;
     };
+    
+    canvas_e = canvas_elem;
 
     load();
 }
@@ -82,6 +92,24 @@ function load_cb(data_id, success) {
     // place your code here
     
     lights.set_day_time(18.2);
+    
+    canvas_e.oncontextmenu = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        m_cam.rotate_camera(camera, 1.5116757154464722, -0.07011628150939941, true)
+        return false;
+    };
+    
+    const camera = m_scenes.get_active_camera();
+    
+    
+    canvas_e.addEventListener("mousemove", function(event) {
+        const x = m_mouse.get_coords_x(event);
+        const y = m_mouse.get_coords_y(event);
+        m_cam.rotate_camera(camera, (x_old - x)/10000, (y_old - y)/10000);
+        x_old = x;
+        y_old = y;
+    });
 
 }
 
