@@ -24,6 +24,8 @@ const APP_ASSETS_PATH = m_cfg.get_assets_path("final_chapter");
 let canvas_e;
 let x_old;
 let y_old;
+let x_tran;
+let y_tran;
     
 /**
  * export the method to initialize the app (called at the bottom of this file)
@@ -96,19 +98,34 @@ function load_cb(data_id, success) {
     canvas_e.oncontextmenu = function(e) {
         e.preventDefault();
         e.stopPropagation();
-        m_cam.rotate_camera(camera, 1.5116757154464722, -0.07011628150939941, true)
+        const x = m_mouse.get_coords_x(e);
+        const y = m_mouse.get_coords_y(e);
+        m_cam.translate_view(camera, 0, 0, 0)
+        x_old = x;
+        y_old = y;
+        x_tran = 0;
+        y_tran = 0;
         return false;
     };
     
     const camera = m_scenes.get_active_camera();
     
-    
     canvas_e.addEventListener("mousemove", function(event) {
         const x = m_mouse.get_coords_x(event);
         const y = m_mouse.get_coords_y(event);
-        m_cam.rotate_camera(camera, (x_old - x)/10000, (y_old - y)/10000);
-        x_old = x;
-        y_old = y;
+        if (x_old == null || y_old == null) {
+            x_old = x;
+            y_old = y;
+            x_tran = 0;
+            y_tran = 0;
+        } else {
+            m_cam.translate_view(camera, x_tran, y_tran, 0);
+            x_tran = x_tran + (x - x_old)/1000;
+            y_tran = y_tran + (y_old - y)/1000;
+            x_old = x;
+            y_old = y;
+        }
+
     });
 
 }
