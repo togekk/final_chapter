@@ -22,10 +22,8 @@ const DEBUG = (m_ver.type() == "DEBUG");
 const APP_ASSETS_PATH = m_cfg.get_assets_path("final_chapter");
     
 let canvas_e;
-let x_old;
-let y_old;
-let x_tran;
-let y_tran;
+let x_tran = 0;
+let y_tran = 0;
     
 /**
  * export the method to initialize the app (called at the bottom of this file)
@@ -95,39 +93,34 @@ function load_cb(data_id, success) {
     
     lights.set_day_time(18.2);
     
+    const cam_org_pos = [ 7.725669860839844, -1.0204399824142456, 1.8238799571990967 ];
+    
+    
     canvas_e.oncontextmenu = function(e) {
         e.preventDefault();
         e.stopPropagation();
-        const x = m_mouse.get_coords_x(e);
-        const y = m_mouse.get_coords_y(e);
-        m_cam.translate_view(camera, 0, 0, 0)
-        x_old = x;
-        y_old = y;
-        x_tran = 0;
-        y_tran = 0;
+        m_cam.translate_view(camera, 0, 0, 0);
+        m_cam.set_translation(camera, cam_org_pos);
         return false;
     };
     
     const camera = m_scenes.get_active_camera();
     
-    canvas_e.addEventListener("mousemove", function(event) {
+    function mouseMove(event) {
         const x = m_mouse.get_coords_x(event);
         const y = m_mouse.get_coords_y(event);
-        if (x_old == null || y_old == null) {
-            x_old = x;
-            y_old = y;
-            x_tran = 0;
-            y_tran = 0;
-        } else {
-            m_cam.translate_view(camera, x_tran, y_tran, 0);
-            x_tran = x_tran + (x - x_old)/1000;
-            y_tran = y_tran + (y_old - y)/1000;
-            x_old = x;
-            y_old = y;
-        }
+        m_cam.translate_view(camera, (x - canvas_e.width/2)/1000, (canvas_e.height/2 - y)/1000, 0);
+    }
+    
+    canvas_e.addEventListener("mousemove", mouseMove);
 
+    canvas_e.addEventListener("mousedown", function(event) {
+        canvas_e.removeEventListener("mousemove", mouseMove);
     });
-
+    
+    canvas_e.addEventListener("mouseup", function(event) {
+        canvas_e.addEventListener("mousemove", mouseMove);
+    });
 }
 
 
